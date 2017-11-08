@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+#*.*encoding=utf-8*.*
+#  CONTSTANTS
+
+EXIT_OK=0
+EXIT_BAD=66
+
+BOLD="\033[1m"
+NC="\033[0m"
+RED="\033[31m"
+
+# DEFINED VARIABLES
+# COPYRDATE
+: calculates interval of years 
+: for copyrights reasons
+: DO NOT TOUCH IT AT ALL
+#
+if [ "`date +%Y`" = "2017" ];
+	then
+		COPYRDATE="* $BOLD copyright (c)  2017 $NC    Pedro Ruiz Hidalgo                        *"
+	else 
+		COPYRDATE="*$BOLD copyright (c) 2017-`date +%Y` $NC  Pedro Ruiz Hidalgo                       *"
+fi
+
+title()
+{
+	clear
+	echo -e "
+  ____                                           _            _        
+ / ___|   _   _   _ __ ___    _ __ ___     ___  | |_   _ __  (_)   ___ 
+ \___ \  | | | | | '_ \` _ \  | '_ \` _ \   / _ \ | __| | '__| | |  / __|
+  ___) | | |_| | | | | | | | | | | | | | |  __/ | |_  | |    | | | (__ 
+ |____/   \__, | |_| |_| |_| |_| |_| |_|  \___|  \__| |_|    |_|  \___|
+          |___/                                                        
+"
+}
+
+author()
+{
+	echo -e "
+ **********************************************************************
+ $COPYRDATE
+ **********************************************************************
+	"
+}
+
+help()
+{
+	echo
+	echo -e "symmetric$BOLD crypt [archivo]$NC para encriptar"
+	echo -e "symmetric$BOLD crypt [archivo] [nombre_archivo_salida]$NC para encriptar"
+	echo
+	echo -e "symmetric$BOLD crypt_ascii [archivo]$NC para encriptar"
+	echo -e "symmetric$BOLD crypt_ascii [archivo] [nombre_archivo_salida]$NC para encriptar"
+	echo
+	echo -e "symmetric$BOLD decrypt [archivo]$NC para desencriptar"
+	echo -e "symmetric$BOLD decrypt [archivo] [nombre_archivo_salida]$NC para desencriptar"
+	echo
+}
+
+
+if [ ! "$1" ];
+	then
+		title
+		author
+		echo
+		echo -e "symmetric$BOLD help$NC para ayuda"
+		echo
+fi
+
+case "$1" in
+	help|-h|--help|h)
+		title
+		author
+		help
+		;;
+	
+	crypt)
+		title
+		if [[ ! -f $2 ]]; 
+			then
+				echo
+				echo -e "el archivo$BOLD $2$NC no existe"
+				echo
+				exit $EXIT_BAD
+		fi
+		if [[ $# -eq 1 ]];
+			then
+				echo
+				echo -e "necesarios dos argumentos$BOLD crypt y [archivo]$NC"
+				exit $EXIT_BAD
+			elif [[ $# -eq 2 ]]; then
+				gpg --symmetric --cipher-algo AES256 $2
+				exit $EXIT_OK
+			elif [[ $# -eq 3 ]]; then
+				gpg -o $3.gpg --symmetric --cipher-algo AES256 $2
+				exit $EXIT_OK
+		fi
+		;;
+	crypt_ascii)
+		title
+		if [[ ! -f $2 ]]; 
+			then
+				echo
+				echo -e "el archivo$BOLD $2$NC no existe"
+				echo
+				exit $EXIT_BAD
+		fi
+		if [[ $# -eq 1 ]];
+			then
+				echo
+				echo -e "necesarios dos argumentos$BOLD crypt y [archivo]$NC"
+				echo
+				exit $EXIT_BAD
+			elif [[ $# -eq 2 ]]; then
+				gpg -a -o $2.asc.gpg --symmetric --cipher-algo AES256 $2
+				exit $EXIT_OK
+			elif [[ $# -eq 3 ]]; then
+				gpg -a -o $3.gpg --symmetric --cipher-algo AES256 $2
+				exit $EXIT_OK
+		fi
+		;;
+	decrypt)
+		title
+		if [[ ! -f $2 ]]; 
+			then
+				echo
+				echo -e "el archivo$BOLD $2$NC no existe"
+				echo
+				exit $EXIT_BAD
+		fi
+		if [[ $# -eq 1 ]];
+			then
+				echo
+				echo -e "necesarios dos argumentos$BOLD decrypt y [archivo]"
+				exit $EXIT_BAD
+			elif [[ $# -eq 2 ]]; then
+				gpg -d $2
+			elif [[ $# -eq 3 ]]; then
+				gpg -o $3 -d $2
+		fi
+		;;
+	*)
+		title
+		author
+		help
+		;;
+esac
